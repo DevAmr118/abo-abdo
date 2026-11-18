@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مطعم أبو عبده | كريب وبيتزا</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Tahoma,Arial,sans-serif}
+body{background:#f4f4f5;color:#18181b;padding-bottom:80px}
+header{background:#d9381e;color:#fff;text-align:center;padding:20px 15px}
+header h1{font-size:1.8rem;margin-bottom:5px}
+.acts{margin-top:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.badge{background:rgba(0,0,0,.2);padding:5px 12px;border-radius:15px;font-size:.85rem}
+.call{background:#10b981;color:#fff;text-decoration:none;padding:5px 14px;border-radius:15px;font-size:.85rem;font-weight:bold}
+.tabs{display:flex;justify-content:center;gap:8px;padding:12px;background:#fff;position:sticky;top:0;box-shadow:0 2px 5px rgba(0,0,0,.08);flex-wrap:wrap}
+.tab{padding:6px 14px;border:2px solid #d9381e;background:#fff;color:#d9381e;border-radius:20px;font-weight:bold;cursor:pointer}
+.tab.active{background:#d9381e;color:#fff}
+.box{max-width:800px;margin:15px auto;padding:0 15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:#fff;border-radius:12px;padding:15px;box-shadow:0 2px 6px rgba(0,0,0,.07);border-right:4px solid #f59e0b;display:flex;flex-direction:column}
+.ctitle{font-size:1.1rem;font-weight:bold;margin-bottom:5px}
+.cdesc{font-size:.85rem;color:#555;margin-bottom:14px}
+.cfoot{display:flex;justify-content:space-between;align-items:center;margin-top:auto}
+.price{font-size:1.1rem;font-weight:bold;color:#d9381e}
+.add{background:#d9381e;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-weight:bold;cursor:pointer}
+.bar{position:fixed;bottom:0;left:0;right:0;background:#1f2937;color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
+.vbtn{background:#f59e0b;color:#000;border:none;padding:9px 16px;border-radius:8px;font-weight:bold;cursor:pointer}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;justify-content:center;align-items:center;padding:15px}
+.mcont{background:#fff;width:100%;max-width:460px;border-radius:12px;padding:18px;max-height:90vh;overflow-y:auto}
+.mhead{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:8px;margin-bottom:10px}
+.close{background:none;border:none;font-size:1.5rem;cursor:pointer}
+.citem{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed #ddd}
+.qty button{background:#eee;border:none;width:26px;height:26px;border-radius:4px;font-weight:bold;cursor:pointer}
+.sum{background:#f3f4f6;padding:10px;border-radius:8px;margin-top:10px;font-size:.95rem}
+.srow{display:flex;justify-content:space-between;margin-bottom:4px}
+.stot{display:flex;justify-content:space-between;font-weight:bold;font-size:1.1rem;color:#d9381e;border-top:1px solid #ccc;padding-top:6px}
+.fg{margin-top:10px}
+.fg label{display:block;font-size:.85rem;font-weight:bold;margin-bottom:3px}
+.fg input,.fg textarea,.fg select{width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;font-size:.95rem}
+.wbtn{width:100%;background:#25D366;color:#fff;border:none;padding:12px;border-radius:8px;font-size:1.05rem;font-weight:bold;margin-top:14px;cursor:pointer}
+</style>
+</head>
+<body>
+<header>
+<h1>🍕 مطعم أبو عبده 🌯</h1>
+<p>أحلى كريب وبيتزا سخنة لحد باب بيتك</p>
+<div class="acts">
+<span class="badge">📍 شبراقاص - مركز السنطة | الدفع عند الاستلام</span>
+<a href="tel:01006023281" class="call">📞 اتصل بالمطعم</a>
+</div>
+</header>
+<div class="tabs">
+<button class="tab active" onclick="flt('all',this)">الكل</button>
+<button class="tab" onclick="flt('crepe',this)">الكريبات 🌯</button>
+<button class="tab" onclick="flt('pizza',this)">البيتزا 🍕</button>
+<button class="tab" onclick="flt('extras',this)">إضافات 🍟</button>
+</div>
+<div class="box"><div class="grid" id="menu"></div></div>
+<div class="bar">
+<div><span id="cnt">0</span> أصناف | الإجمالي: <strong id="tot">0</strong> ج.م</div>
+<button class="vbtn" onclick="openC()">مراجعة الطلب 🛒</button>
+</div>
+<div class="modal" id="mod">
+<div class="mcont">
+<div class="mhead"><h3>طلباتك من أبو عبده</h3><button class="close" onclick="closeC()">&times;</button></div>
+<div id="clist"></div>
+<div class="fg"><label>منطقة التوصيل / الاستلام *</label>
+<select id="area" onchange="upd()">
+<option value="0">استلام من المطعم (+0 ج.م)</option>
+<option value="10" selected>داخل شبراقاص (+10 ج.م)</option>
+<option value="20">مدينة السنطة (+20 ج.م)</option>
+<option value="25">القرى المجاورة (+25 ج.م)</option>
+</select>
+</div>
+<div class="sum">
+<div class="srow"><span>حساب الأكل:</span><span><strong id="msub">0</strong> ج.م</span></div>
+<div class="srow"><span>تكلفة التوصيل:</span><span><strong id="mdel">0</strong> ج.م</span></div>
+<div class="stot"><span>الإجمالي النهائي:</span><span><span id="mtot">0</span> ج.م</span></div>
+</div>
+<div class="fg"><label>الاسم بالكامل *</label><input type="text" id="cname" placeholder="اكتب اسمك هنا"></div>
+<div class="fg"><label>رقم الموبايل *</label><input type="tel" id="cphone" placeholder="010xxxxxxxx"></div>
+<div class="fg"><label>العنوان بالتفصيل *</label><textarea id="caddr" rows="2" placeholder="الشارع / علامة مميزة"></textarea></div>
+<div class="fg"><label>ملاحظات (اختياري)</label><input type="text" id="cnote" placeholder="مثال: زود كاتشب، بدون شطة"></div>
+<button class="wbtn" onclick="sendW()">إرسال الطلب على واتساب ✅</button>
+</div>
+</div>
+<script>
+var items = [
+  {id:1, cat:'crepe', name:'كريب فراخ بانيه', desc:'قطع بانيه مقرمشة + موتزاريلا + صوصات', price:65},
+  {id:2, cat:'crepe', name:'كريب زنجر سبايسي', desc:'استربس حار + شيدر وموتزاريلا + هالبينو', price:70},
+  {id:3, cat:'crepe', name:'كريب شاورما فراخ', desc:'شاورما سوري + تومية + خيار مخلل', price:70},
+  {id:4, cat:'crepe', name:'كريب ميكس جبن', desc:'موتزاريلا + رومي + شيدر + زيتون', price:50},
+  {id:5, cat:'crepe', name:'كريب نوتيلا وموز (حلو)', desc:'شوكولاتة نوتيلا + شرائح موز طازة', price:45},
+  {id:6, cat:'pizza', name:'بيتزا مارجريتا (وسط)', desc:'صلصة بيتزا + غرقانة موتزاريلا وزعتر', price:70},
+  {id:7, cat:'pizza', name:'بيتزا فراخ رانش (وسط)', desc:'قطع فراخ مشوية + صوص رانش + خضار', price:95},
+  {id:8, cat:'pizza', name:'بيتزا سوسيس وبيبروني (وسط)', desc:'سوسيس + بيبروني + فلفل ألوان + زيتون', price:90},
+  {id:9, cat:'pizza', name:'بيتزا سوبر سوبريم (كبير)', desc:'ميكس لحوم وفراخ + خضار + جبنة إكسترا', price:120},
+  {id:10, cat:'extras', name:'باكت بطاطس محمرة', desc:'بطاطس مقرمشة بالبهارات', price:25},
+  {id:11, cat:'extras', name:'علبة تومية / كاتشب', desc:'إضافة صوص جانبي', price:10}
+];
+var cart = {};
+
+function render(cat) {
+  var box = document.getElementById('menu');
+  box.innerHTML = '';
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i];
+    if (cat === 'all' || it.cat === cat) {
+      box.innerHTML += '<div class="card"><div class="ctitle">' + it.name + '</div><div class="cdesc">' + it.desc + '</div><div class="cfoot"><span class="price">' + it.price + ' ج.م</span><button class="add" onclick="add(' + it.id + ')">+ أضف</button></div></div>';
+    }
+  }
+}
+
+function flt(cat, btn) {
+  var btns = document.querySelectorAll('.tab');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+  render(cat);
+}
+
+function add(id) {
+  if (cart[id]) {
+    cart[id].qty++;
+  } else {
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].id === id) {
+        cart[id] = {id: items[i].id, name: items[i].name, price: items[i].price, qty: 1};
+      }
+    }
+  }
+  upd();
+}
+
+function chg(id, d) {
+  if (!cart[id]) return;
+  cart[id].qty += d;
+  if (cart[id].qty <= 0) delete cart[id];
+  upd();
+  rMod();
+}
+
+function upd() {
+  var c = 0, s = 0;
+  for (var k in cart) {
+    c += cart[k].qty;
+    s += cart[k].price * cart[k].qty;
+  }
+  var sel = document.getElementById('area');
+  var f = c > 0 ? parseInt(sel.value) : 0;
+  document.getElementById('cnt').innerText = c;
+  document.getElementById('tot').innerText = s;
+  document.getElementById('msub').innerText = s;
+  document.getElementById('mdel').innerText = f;
+  document.getElementById('mtot').innerText = s + f;
+}
+
+function openC() {
+  if (Object.keys(cart).length === 0) {
+    alert('السلة فاضية! اختار الأكل الأول.');
+    return;
+  }
+  upd();
+  rMod();
+  document.getElementById('mod').style.display = 'flex';
+}
+
+function closeC() {
+  document.getElementById('mod').style.display = 'none';
+}
+
+function rMod() {
+  var l = document.getElementById('clist');
+  l.innerHTML = '';
+  for (var k in cart) {
+    var i = cart[k];
+    l.innerHTML += '<div class="citem"><div><strong>' + i.name + '</strong><br><small>' + i.price + ' ج.م × ' + i.qty + ' = ' + (i.price * i.qty) + ' ج.م</small></div><div class="qty"><button onclick="chg(' + i.id + ',-1)">-</button><span style="margin:0 8px;font-weight:bold">' + i.qty + '</span><button onclick="chg(' + i.id + ',1)">+</button></div></div>';
+  }
+  if (Object.keys(cart).length === 0) closeC();
+}
+
+function sendW() {
+  var n = document.getElementById('cname').value.trim();
+  var p = document.getElementById('cphone').value.trim();
+  var a = document.getElementById('caddr').value.trim();
+  var no = document.getElementById('cnote').value.trim();
+  var sel = document.getElementById('area');
+  var fee = parseInt(sel.value);
+  var areaName = sel.options[sel.selectedIndex].text;
+  if (!n || !p || (!a && fee > 0)) {
+    alert('اكتب الاسم ورقم الموبايل والعنوان عشان الأوردر يوصلك.');
+    return;
+  }
+  var t = '*طلب جديد لمطعم أبو عبده*\n------------------\n', s = 0;
+  for (var k in cart) {
+    var i = cart[k], x = i.price * i.qty;
+    s += x;
+    t += '- ' + i.name + ' (' + i.qty + ') = ' + x + ' ج.م\n';
+  }
+  t += '------------------\nالأكل: ' + s + ' ج.م\nالتوصيل (' + areaName + '): ' + fee + ' ج.م\n*الإجمالي:* ' + (s + fee) + ' ج.م\n\nالاسم: ' + n + '\nالموبايل: ' + p + '\nالمنطقة: ' + areaName + '\n';
+  if (a) t += 'العنوان: ' + a + '\n';
+  if (no) t += 'ملاحظات: ' + no + '\n';
+  window.location.href = 'https://whatsapp.com' + encodeURIComponent(t);
+}
+
+render('all');
+</script>
+</body>
+</html>
